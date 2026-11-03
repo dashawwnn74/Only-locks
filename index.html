@@ -1,0 +1,197 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ONLY LOCKS | Player Intelligence</title>
+<style>
+:root {
+  --gold:#d6ad55;
+  --gold2:#f4d58a;
+  --bg:#090a0d;
+  --panel:#141519;
+  --muted:#96969e;
+  --green:#43d69a;
+}
+*{box-sizing:border-box}
+body{
+ margin:0;background:var(--bg);color:#fff;
+ font-family:Arial,Helvetica,sans-serif;
+}
+header{
+ padding:22px 18px;border-bottom:1px solid #29251b;
+ display:flex;justify-content:space-between;align-items:center;
+ position:sticky;top:0;background:#090a0df2;z-index:10;
+}
+.logo{font-size:25px;font-weight:900;letter-spacing:1px}
+.logo span{color:var(--gold)}
+.status{font-size:10px;color:var(--gold);letter-spacing:1px}
+main{max-width:1100px;margin:auto;padding:22px 16px}
+.hero{
+ background:linear-gradient(120deg,#211b10,#101115 65%);
+ border:1px solid #514027;border-radius:16px;padding:27px 22px;
+}
+.eyebrow{color:var(--gold);font-size:11px;letter-spacing:2px}
+h1{font-size:clamp(32px,7vw,48px);margin:12px 0}
+.hero p{color:#aaa;line-height:1.6;margin-bottom:0}
+.stats{
+ display:grid;grid-template-columns:repeat(3,1fr);
+ gap:10px;margin:17px 0 25px;
+}
+.stat,.card{
+ background:var(--panel);border:1px solid #292929;
+ border-radius:12px;padding:15px;
+}
+.stat strong{display:block;color:var(--gold);font-size:23px}
+.stat small{color:var(--muted);font-size:11px}
+.section-title{
+ display:flex;justify-content:space-between;
+ align-items:center;margin:28px 0 14px;
+}
+h2{font-size:19px;margin:0}
+.section-title span{font-size:11px;color:var(--gold)}
+.sports{
+ display:flex;gap:9px;overflow-x:auto;padding-bottom:10px;
+}
+.sport{
+ background:#17181c;color:#aaa;border:1px solid #333;
+ padding:11px 17px;border-radius:30px;white-space:nowrap;
+ cursor:pointer;font-weight:bold;
+}
+.sport.active{
+ color:#090a0d;background:var(--gold);border-color:var(--gold);
+}
+.filters{
+ display:flex;gap:10px;margin:15px 0;flex-wrap:wrap;
+}
+input,select{
+ background:#17181c;color:#fff;border:1px solid #353535;
+ padding:12px;border-radius:8px;flex:1;min-width:140px;
+}
+.picks{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.pick{
+ background:linear-gradient(145deg,#17181c,#101114);
+ border:1px solid #39332a;border-radius:13px;padding:16px;
+}
+.pick-top{display:flex;justify-content:space-between;gap:8px}
+.rank{color:var(--gold);font-size:12px;font-weight:bold}
+.tag{color:var(--green);font-size:10px;font-weight:bold}
+.player{font-size:19px;font-weight:bold;margin:13px 0 5px}
+.match{color:var(--muted);font-size:12px}
+.prop{
+ color:var(--gold2);font-size:18px;font-weight:bold;margin:15px 0;
+}
+.details{
+ display:flex;justify-content:space-between;
+ border-top:1px solid #303030;padding-top:12px;
+}
+.details small{color:var(--muted);font-size:10px}
+.details strong{display:block;margin-top:5px}
+.note{color:#999;font-size:11px;line-height:1.6;margin-top:22px}
+footer{
+ text-align:center;border-top:1px solid #292929;
+ padding:25px;color:#777;font-size:11px;margin-top:35px;
+}
+@media(max-width:650px){
+ .picks{grid-template-columns:1fr}
+ .stats{grid-template-columns:repeat(3,1fr)}
+ .stat{padding:12px 8px}
+ .stat strong{font-size:19px}
+}
+</style>
+</head>
+<body>
+<header>
+ <div class="logo">ONLY <span>LOCKS</span></div>
+ <div class="status">PLAYER INTELLIGENCE</div>
+</header>
+<main>
+ <section class="hero">
+  <div class="eyebrow">THE DAILY PLAYER RESEARCH PLATFORM</div>
+  <h1>FIND THE <span style="color:#d6ad55">EDGE.</span></h1>
+  <p>Player projections, matchup research, statistical analysis and the strongest opportunities across sports.</p>
+ </section>
+
+ <div class="stats">
+  <div class="stat"><strong id="total">0</strong><small>PICKS DISPLAYED</small></div>
+  <div class="stat"><strong>6</strong><small>SPORTS COVERED</small></div>
+  <div class="stat"><strong>1–10</strong><small>CONFIDENCE SCALE</small></div>
+ </div>
+
+ <div class="section-title">
+  <h2>SPORTS</h2><span>SELECT A SPORT</span>
+ </div>
+ <div class="sports" id="sports"></div>
+
+ <div class="section-title">
+  <h2>DAILY PLAYER PICKS</h2><span id="sportLabel">ALL SPORTS</span>
+ </div>
+ <div class="filters">
+  <input id="search" placeholder="Search player..." />
+  <select id="sort">
+   <option value="rank">Highest confidence</option>
+   <option value="player">Player name</option>
+  </select>
+ </div>
+ <div class="picks" id="picks"></div>
+ <p class="note">
+  IMPORTANT: This initial version is a website interface, not a live prediction engine.
+  No sample picks are presented as real recommendations. Live statistics,
+  player projections, sportsbook lines and historical model performance
+  will be connected in the next development phase. Confidence scores
+  will be calculated only when supporting data is available.
+ </p>
+</main>
+<footer>
+ ONLY LOCKS © 2026 · RESEARCH OVER GUESSWORK
+</footer>
+<script>
+const sports=[
+ ["ALL","All Sports"],["NBA","NBA"],["NFL","NFL"],
+ ["MLB","MLB"],["NHL","NHL"],["SOCCER","Soccer"],["TENNIS","Tennis"]
+];
+let selected="ALL";
+const sportsBox=document.getElementById("sports");
+const picksBox=document.getElementById("picks");
+
+function renderSports(){
+ sportsBox.innerHTML=sports.map(s=>
+ `<button class="sport ${selected===s[0]?'active':''}"
+ onclick="chooseSport('${s[0]}')">${s[1]}</button>`
+ ).join("");
+}
+function chooseSport(s){
+ selected=s;
+ renderSports();
+ renderPicks();
+}
+function renderPicks(){
+ document.getElementById("sportLabel").textContent=
+ sports.find(s=>s[0]===selected)[1].toUpperCase();
+ picksBox.innerHTML=
+ `<div class="card" style="grid-column:1/-1;text-align:center;padding:30px">
+ <div style="color:#d6ad55;font-size:15px;font-weight:bold">
+ NO VERIFIED PICKS YET
+ </div>
+ <p style="color:#999;font-size:13px;line-height:1.6">
+ Your ${selected==="ALL"?"daily":" "+selected} player research will appear here once live player statistics, available prop lines and the projection model are connected.
+ </p>
+ <p style="color:#777;font-size:11px">ONLY LOCKS · DATA FIRST</p>
+ </div>`;
+ document.getElementById("total").textContent="0";
+}
+document.getElementById("search").addEventListener("input",()=>{
+ const q=document.getElementById("search").value.trim();
+ if(q){
+  picksBox.innerHTML=`<div class="card" style="grid-column:1/-1;color:#aaa">
+  Player search will become active when the live player database is connected.
+  </div>`;
+ }else renderPicks();
+});
+document.getElementById("sort").addEventListener("change",renderPicks);
+renderSports();
+renderPicks();
+</script>
+</body>
+</html>
