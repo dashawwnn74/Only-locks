@@ -3,195 +3,349 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ONLY LOCKS | Player Intelligence</title>
 <style>
-:root {
-  --gold:#d6ad55;
-  --gold2:#f4d58a;
-  --bg:#090a0d;
-  --panel:#141519;
-  --muted:#96969e;
-  --green:#43d69a;
-}
+:root{--gold:#d6ad55;--gold2:#f4d58a;--bg:#090a0d;--panel:#141519;--muted:#96969e;--green:#43d69a}
 *{box-sizing:border-box}
-body{
- margin:0;background:var(--bg);color:#fff;
- font-family:Arial,Helvetica,sans-serif;
-}
-header{
- padding:22px 18px;border-bottom:1px solid #29251b;
- display:flex;justify-content:space-between;align-items:center;
- position:sticky;top:0;background:#090a0df2;z-index:10;
-}
+body{margin:0;background:var(--bg);color:#fff;font-family:Arial,sans-serif}
+header{padding:20px 16px;border-bottom:1px solid #29251b;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#090a0df2;z-index:10}
 .logo{font-size:25px;font-weight:900;letter-spacing:1px}
 .logo span{color:var(--gold)}
 .status{font-size:10px;color:var(--gold);letter-spacing:1px}
 main{max-width:1100px;margin:auto;padding:22px 16px}
-.hero{
- background:linear-gradient(120deg,#211b10,#101115 65%);
- border:1px solid #514027;border-radius:16px;padding:27px 22px;
-}
+.hero{background:linear-gradient(120deg,#211b10,#101115 65%);border:1px solid #514027;border-radius:16px;padding:27px 22px}
 .eyebrow{color:var(--gold);font-size:11px;letter-spacing:2px}
 h1{font-size:clamp(32px,7vw,48px);margin:12px 0}
 .hero p{color:#aaa;line-height:1.6;margin-bottom:0}
-.stats{
- display:grid;grid-template-columns:repeat(3,1fr);
- gap:10px;margin:17px 0 25px;
-}
-.stat,.card{
- background:var(--panel);border:1px solid #292929;
- border-radius:12px;padding:15px;
-}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:17px 0 25px}
+.stat,.card{background:var(--panel);border:1px solid #292929;border-radius:12px;padding:15px}
 .stat strong{display:block;color:var(--gold);font-size:23px}
 .stat small{color:var(--muted);font-size:11px}
-.section-title{
- display:flex;justify-content:space-between;
- align-items:center;margin:28px 0 14px;
-}
+.section-title{display:flex;justify-content:space-between;align-items:center;margin:28px 0 14px}
 h2{font-size:19px;margin:0}
 .section-title span{font-size:11px;color:var(--gold)}
-.sports{
- display:flex;gap:9px;overflow-x:auto;padding-bottom:10px;
-}
-.sport{
- background:#17181c;color:#aaa;border:1px solid #333;
- padding:11px 17px;border-radius:30px;white-space:nowrap;
- cursor:pointer;font-weight:bold;
-}
-.sport.active{
- color:#090a0d;background:var(--gold);border-color:var(--gold);
-}
-.filters{
- display:flex;gap:10px;margin:15px 0;flex-wrap:wrap;
-}
-input,select{
- background:#17181c;color:#fff;border:1px solid #353535;
- padding:12px;border-radius:8px;flex:1;min-width:140px;
-}
+.sports{display:flex;gap:9px;overflow-x:auto;padding-bottom:10px}
+.sport{background:#17181c;color:#aaa;border:1px solid #333;padding:11px 17px;border-radius:30px;white-space:nowrap;cursor:pointer;font-weight:bold}
+.sport.active{color:#090a0d;background:var(--gold);border-color:var(--gold)}
+.filters{display:flex;gap:10px;margin:15px 0;flex-wrap:wrap}
+input,select{background:#17181c;color:#fff;border:1px solid #353535;padding:12px;border-radius:8px;flex:1;min-width:140px}
+button{cursor:pointer}
+.action{background:var(--gold);color:#090a0d;border:0;border-radius:9px;padding:13px 18px;font-weight:bold}
+.action:disabled{opacity:.45;cursor:wait}
+.secondary{background:#24252a;color:#fff;border:1px solid #444;border-radius:8px;padding:11px 14px}
 .picks{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-.pick{
- background:linear-gradient(145deg,#17181c,#101114);
- border:1px solid #39332a;border-radius:13px;padding:16px;
-}
+.pick{background:linear-gradient(145deg,#17181c,#101114);border:1px solid #39332a;border-radius:13px;padding:16px}
 .pick-top{display:flex;justify-content:space-between;gap:8px}
-.rank{color:var(--gold);font-size:12px;font-weight:bold}
-.tag{color:var(--green);font-size:10px;font-weight:bold}
 .player{font-size:19px;font-weight:bold;margin:13px 0 5px}
 .match{color:var(--muted);font-size:12px}
-.prop{
- color:var(--gold2);font-size:18px;font-weight:bold;margin:15px 0;
-}
-.details{
- display:flex;justify-content:space-between;
- border-top:1px solid #303030;padding-top:12px;
-}
-.details small{color:var(--muted);font-size:10px}
-.details strong{display:block;margin-top:5px}
+.prop{color:var(--gold2);font-size:18px;font-weight:bold;margin:13px 0}
+.price-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+.price{background:#202126;padding:11px;border-radius:9px}
+.price small{color:var(--muted);font-size:10px;display:block}
+.price strong{display:block;margin-top:5px;color:var(--green)}
+.book{font-size:11px;color:#aaa;margin-top:9px}
 .note{color:#999;font-size:11px;line-height:1.6;margin-top:22px}
-footer{
- text-align:center;border-top:1px solid #292929;
- padding:25px;color:#777;font-size:11px;margin-top:35px;
-}
-@media(max-width:650px){
- .picks{grid-template-columns:1fr}
- .stats{grid-template-columns:repeat(3,1fr)}
- .stat{padding:12px 8px}
- .stat strong{font-size:19px}
-}
+#message{color:var(--gold);font-size:13px;line-height:1.5;margin:14px 0}
+footer{text-align:center;border-top:1px solid #292929;padding:25px;color:#777;font-size:11px;margin-top:35px}
+@media(max-width:650px){.picks{grid-template-columns:1fr}.stats{grid-template-columns:repeat(3,1fr)}.stat{padding:12px 8px}.stat strong{font-size:19px}}
 </style>
 </head>
 <body>
 <header>
  <div class="logo">ONLY <span>LOCKS</span></div>
- <div class="status">PLAYER INTELLIGENCE</div>
+ <div class="status" id="status">CONNECTING</div>
 </header>
 <main>
- <section class="hero">
-  <div class="eyebrow">THE DAILY PLAYER RESEARCH PLATFORM</div>
-  <h1>FIND THE <span style="color:#d6ad55">EDGE.</span></h1>
-  <p>Player projections, matchup research, statistical analysis and the strongest opportunities across sports.</p>
- </section>
+<section class="hero">
+ <div class="eyebrow">THE DAILY PLAYER RESEARCH PLATFORM</div>
+ <h1>FIND THE <span style="color:#d6ad55">EDGE.</span></h1>
+ <p>Live player props, sportsbook comparisons and statistical research. Research over guesswork.</p>
+</section>
 
- <div class="stats">
-  <div class="stat"><strong id="total">0</strong><small>PICKS DISPLAYED</small></div>
-  <div class="stat"><strong>6</strong><small>SPORTS COVERED</small></div>
-  <div class="stat"><strong>1–10</strong><small>CONFIDENCE SCALE</small></div>
- </div>
+<div class="stats">
+ <div class="stat"><strong id="total">0</strong><small>PLAYER LINES</small></div>
+ <div class="stat"><strong id="books">0</strong><small>SPORTSBOOKS</small></div>
+ <div class="stat"><strong id="credits">---</strong><small>CREDITS LEFT</small></div>
+</div>
 
- <div class="section-title">
-  <h2>SPORTS</h2><span>SELECT A SPORT</span>
- </div>
- <div class="sports" id="sports"></div>
+<div class="section-title"><h2>SPORTS</h2><span>SELECT A SPORT</span></div>
+<div class="sports" id="sports"></div>
 
- <div class="section-title">
-  <h2>DAILY PLAYER PICKS</h2><span id="sportLabel">ALL SPORTS</span>
- </div>
- <div class="filters">
-  <input id="search" placeholder="Search player..." />
-  <select id="sort">
-   <option value="rank">Highest confidence</option>
-   <option value="player">Player name</option>
-  </select>
- </div>
- <div class="picks" id="picks"></div>
- <p class="note">
-  IMPORTANT: This initial version is a website interface, not a live prediction engine.
-  No sample picks are presented as real recommendations. Live statistics,
-  player projections, sportsbook lines and historical model performance
-  will be connected in the next development phase. Confidence scores
-  will be calculated only when supporting data is available.
- </p>
+<div class="section-title"><h2>SELECT MATCHUP</h2><span id="sportLabel">NBA</span></div>
+<div class="filters">
+<select id="event"><option value="">Loading games...</option></select>
+</div>
+
+<div class="section-title"><h2>PLAYER MARKET</h2><span>LIVE DATA</span></div>
+<div class="filters">
+<select id="market"></select>
+<button class="action" id="load">LOAD PLAYER PROPS</button>
+</div>
+
+<div class="section-title">
+<h2>PLAYER PICKS</h2><span id="resultLabel">AWAITING DATA</span>
+</div>
+<div class="filters">
+<input id="search" placeholder="Search player...">
+<select id="sort">
+<option value="player">Player name</option>
+<option value="line">Highest line</option>
+</select>
+</div>
+
+<div id="message">Loading available games...</div>
+<div class="picks" id="picks"></div>
+
+<p class="note">
+ONLY LOCKS displays sportsbook market data, not guaranteed predictions.
+Best prices are compared only at matching player lines.
+Confidence ratings and independent statistical projections are not yet enabled.
+API credits are used when player markets are requested. Game schedules do not consume credits.
+</p>
 </main>
-<footer>
- ONLY LOCKS © 2026 · RESEARCH OVER GUESSWORK
-</footer>
+<footer>ONLY LOCKS © 2026 · RESEARCH OVER GUESSWORK</footer>
+
 <script>
-const sports=[
- ["ALL","All Sports"],["NBA","NBA"],["NFL","NFL"],
- ["MLB","MLB"],["NHL","NHL"],["SOCCER","Soccer"],["TENNIS","Tennis"]
-];
-let selected="ALL";
-const sportsBox=document.getElementById("sports");
-const picksBox=document.getElementById("picks");
+const API="/.netlify/functions/player-props";
+
+const CONFIG={
+ NBA:{
+  key:"basketball_nba",
+  markets:{
+   player_points:"Points",
+   player_rebounds:"Rebounds",
+   player_assists:"Assists",
+   player_threes:"Three-pointers",
+   player_blocks:"Blocks",
+   player_steals:"Steals",
+   player_points_rebounds_assists:"Points + Rebounds + Assists"
+  }
+ },
+ NFL:{
+  key:"americanfootball_nfl",
+  markets:{
+   player_pass_yds:"Passing Yards",
+   player_pass_tds:"Passing Touchdowns",
+   player_pass_completions:"Pass Completions",
+   player_rush_yds:"Rushing Yards",
+   player_rush_attempts:"Rushing Attempts",
+   player_receptions:"Receptions",
+   player_reception_yds:"Receiving Yards",
+   player_anytime_td:"Anytime Touchdown"
+  }
+ }
+};
+
+let selected="NBA";
+let events=[];
+let playerLines=[];
+let busy=false;
+
+const $=id=>document.getElementById(id);
+
+function message(text){$("message").textContent=text;}
 
 function renderSports(){
- sportsBox.innerHTML=sports.map(s=>
- `<button class="sport ${selected===s[0]?'active':''}"
- onclick="chooseSport('${s[0]}')">${s[1]}</button>`
+ $("sports").innerHTML=["NBA","NFL","MLB","NHL","SOCCER","TENNIS"].map(s=>
+ `<button class="sport ${selected===s?'active':''}" data-sport="${s}">${s}</button>`
+ ).join("");
+
+ $("sports").querySelectorAll("button").forEach(b=>{
+  b.onclick=()=>chooseSport(b.dataset.sport);
+ });
+}
+
+function chooseSport(s){
+ if(!CONFIG[s]){
+  message(s+" player props are not connected yet. NBA and NFL are currently active.");
+  return;
+ }
+ selected=s;
+ playerLines=[];
+ $("picks").innerHTML="";
+ $("total").textContent="0";
+ $("books").textContent="0";
+ $("sportLabel").textContent=s;
+ renderSports();
+ renderMarkets();
+ loadEvents();
+}
+
+function renderMarkets(){
+ const markets=CONFIG[selected].markets;
+ $("market").innerHTML=Object.entries(markets).map(([key,label])=>
+ `<option value="${key}">${label}</option>`
  ).join("");
 }
-function chooseSport(s){
- selected=s;
- renderSports();
+
+async function getJSON(url){
+ const r=await fetch(url);
+ const data=await r.json();
+ if(!r.ok)throw new Error(data.details?.message||data.error||"Request failed ("+r.status+")");
+ if(!data.success)throw new Error(data.error||"Request unsuccessful");
+ return data;
+}
+
+async function loadEvents(){
+ $("status").textContent="LOADING";
+ $("event").innerHTML='<option value="">Loading games...</option>';
+ message("Retrieving available "+selected+" games...");
+ try{
+  const result=await getJSON(`${API}?sport=${CONFIG[selected].key}&action=events`);
+  events=result.data||[];
+  const now=Date.now();
+  events=events.filter(e=>new Date(e.commence_time).getTime()>now-12*60*60*1000);
+  events.sort((a,b)=>new Date(a.commence_time)-new Date(b.commence_time));
+
+  $("event").innerHTML=events.length
+   ?events.map(e=>`<option value="${e.id}">${e.away_team} @ ${e.home_team} · ${new Date(e.commence_time).toLocaleString([], {month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})}</option>`).join("")
+   :'<option value="">No games available</option>';
+
+  $("status").textContent="CONNECTED";
+  $("credits").textContent=result.creditsRemaining??"---";
+  message(events.length+" games available. Select a matchup and market, then load player props.");
+ }catch(e){
+  $("status").textContent="ERROR";
+  $("event").innerHTML='<option value="">Could not load games</option>';
+  message("Schedule error: "+e.message);
+ }
+}
+
+function americanProbability(price){
+ return price<0?(-price)/(-price+100):100/(price+100);
+}
+
+function formatOdds(price){
+ return price>0?"+"+price:String(price);
+}
+
+function processProps(data){
+ const players={};
+ const books=new Set();
+
+ (data.bookmakers||[]).forEach(book=>{
+  books.add(book.title);
+  (book.markets||[]).forEach(market=>{
+   (market.outcomes||[]).forEach(o=>{
+    if(!o.description||o.point===undefined)return;
+    const name=o.description;
+    const key=name+"|"+o.point;
+    if(!players[key]){
+     players[key]={
+      name,point:o.point,
+      over:[],under:[],books:new Set()
+     };
+    }
+    const p=players[key];
+    const entry={book:book.title,price:o.price};
+    if(o.name==="Over")p.over.push(entry);
+    if(o.name==="Under")p.under.push(entry);
+    p.books.add(book.title);
+   });
+  });
+ });
+
+ playerLines=Object.values(players).map(p=>{
+  p.over.sort((a,b)=>americanProbability(a.price)-americanProbability(b.price));
+  p.under.sort((a,b)=>americanProbability(a.price)-americanProbability(b.price));
+  return {...p,bestOver:p.over[p.over.length-1],bestUnder:p.under[p.under.length-1]};
+ });
+
+ $("books").textContent=books.size;
+ $("total").textContent=playerLines.length;
+ $("credits").textContent=data.creditsRemaining??"---";
+ $("resultLabel").textContent=CONFIG[selected].markets[$("market").value].toUpperCase();
  renderPicks();
 }
+
 function renderPicks(){
- document.getElementById("sportLabel").textContent=
- sports.find(s=>s[0]===selected)[1].toUpperCase();
- picksBox.innerHTML=
- `<div class="card" style="grid-column:1/-1;text-align:center;padding:30px">
- <div style="color:#d6ad55;font-size:15px;font-weight:bold">
- NO VERIFIED PICKS YET
- </div>
- <p style="color:#999;font-size:13px;line-height:1.6">
- Your ${selected==="ALL"?"daily":" "+selected} player research will appear here once live player statistics, available prop lines and the projection model are connected.
- </p>
- <p style="color:#777;font-size:11px">ONLY LOCKS · DATA FIRST</p>
- </div>`;
- document.getElementById("total").textContent="0";
+ const q=$("search").value.trim().toLowerCase();
+ const sort=$("sort").value;
+ let rows=playerLines.filter(p=>p.name.toLowerCase().includes(q));
+
+ if(sort==="player")rows.sort((a,b)=>a.name.localeCompare(b.name));
+ if(sort==="line")rows.sort((a,b)=>b.point-a.point);
+
+ if(!rows.length){
+  $("picks").innerHTML='<div class="card" style="grid-column:1/-1;text-align:center;color:#aaa">No player lines found. Try another search or market.</div>';
+  return;
+ }
+
+ $("picks").innerHTML=rows.map(p=>{
+  const over=p.bestOver;
+  const under=p.bestUnder;
+  return `<article class="pick">
+   <div class="pick-top">
+    <span style="color:var(--gold);font-size:11px;font-weight:bold">LIVE MARKET</span>
+    <span style="color:var(--green);font-size:10px">${p.books.size} BOOKS</span>
+   </div>
+   <div class="player">${escapeHTML(p.name)}</div>
+   <div class="match">${escapeHTML($("event").selectedOptions[0]?.textContent||"")}</div>
+   <div class="prop">${p.point} ${escapeHTML(CONFIG[selected].markets[$("market").value])}</div>
+   <div class="price-grid">
+    <div class="price"><small>BEST OVER</small><strong>${over?formatOdds(over.price):"Unavailable"}</strong><small>${over?escapeHTML(over.book):"No quote"}</small></div>
+    <div class="price"><small>BEST UNDER</small><strong>${under?formatOdds(under.price):"Unavailable"}</strong><small>${under?escapeHTML(under.book):"No quote"}</small></div>
+   </div>
+   <div class="book">Comparing ${p.books.size} sportsbooks · Same player and line</div>
+  </article>`;
+ }).join("");
 }
-document.getElementById("search").addEventListener("input",()=>{
- const q=document.getElementById("search").value.trim();
- if(q){
-  picksBox.innerHTML=`<div class="card" style="grid-column:1/-1;color:#aaa">
-  Player search will become active when the live player database is connected.
-  </div>`;
- }else renderPicks();
+
+function escapeHTML(value){
+ return String(value).replace(/[&<>"']/g,c=>({
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+ }[c]));
+}
+
+async function loadProps(){
+ if(busy)return;
+ const eventId=$("event").value;
+ const market=$("market").value;
+ if(!eventId){message("Select a game first.");return;}
+
+ busy=true;
+ $("load").disabled=true;
+ $("load").textContent="LOADING...";
+ $("picks").innerHTML="";
+ message("Requesting live sportsbook lines. This request uses API credits.");
+
+ try{
+  const params=new URLSearchParams({
+   sport:CONFIG[selected].key,
+   action:"props",
+   eventId,
+   markets:market
+  });
+  const data=await getJSON(`${API}?${params}`);
+  processProps(data);
+  message(playerLines.length+" player lines loaded successfully.");
+  $("status").textContent="LIVE DATA";
+ }catch(e){
+  message("Player props error: "+e.message);
+  $("status").textContent="ERROR";
+  $("picks").innerHTML='<div class="card" style="grid-column:1/-1;color:#ff7185">Could not load player props. Check the selected game and API response.</div>';
+ }finally{
+  busy=false;
+  $("load").disabled=false;
+  $("load").textContent="LOAD PLAYER PROPS";
+ }
+}
+
+$("load").addEventListener("click",loadProps);
+$("search").addEventListener("input",renderPicks);
+$("sort").addEventListener("change",renderPicks);
+$("event").addEventListener("change",()=>{
+ playerLines=[];
+ $("picks").innerHTML="";
+ $("total").textContent="0";
+ $("books").textContent="0";
+ message("Matchup selected. Load player props when ready.");
 });
-document.getElementById("sort").addEventListener("change",renderPicks);
+
 renderSports();
-renderPicks();
+renderMarkets();
+loadEvents();
 </script>
 </body>
 </html>
