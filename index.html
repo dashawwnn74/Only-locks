@@ -52,10 +52,12 @@ footer{text-align:center;border-top:1px solid #292929;padding:25px;color:#777;fo
 </style>
 </head>
 <body>
+
 <header>
  <div class="logo">ONLY <span>LOCKS</span></div>
  <div class="status" id="status">CONNECTING</div>
 </header>
+
 <main>
 <section class="hero">
  <div class="eyebrow">THE DAILY PLAYER RESEARCH PLATFORM</div>
@@ -86,6 +88,7 @@ footer{text-align:center;border-top:1px solid #292929;padding:25px;color:#777;fo
 <div class="section-title">
 <h2>PLAYER PICKS</h2><span id="resultLabel">AWAITING DATA</span>
 </div>
+
 <div class="filters">
 <input id="search" placeholder="Search player...">
 <select id="sort">
@@ -104,6 +107,7 @@ Confidence ratings and independent statistical projections are not yet enabled.
 API credits are used when player markets are requested. Game schedules do not consume credits.
 </p>
 </main>
+
 <footer>ONLY LOCKS © 2026 · RESEARCH OVER GUESSWORK</footer>
 
 <script>
@@ -144,7 +148,9 @@ let busy=false;
 
 const $=id=>document.getElementById(id);
 
-function message(text){$("message").textContent=text;}
+function message(text){
+ $("message").textContent=text;
+}
 
 function renderSports(){
  $("sports").innerHTML=["NBA","NFL","MLB","NHL","SOCCER","TENNIS"].map(s=>
@@ -161,12 +167,15 @@ function chooseSport(s){
   message(s+" player props are not connected yet. NBA and NFL are currently active.");
   return;
  }
+
  selected=s;
  playerLines=[];
  $("picks").innerHTML="";
  $("total").textContent="0";
  $("books").textContent="0";
  $("sportLabel").textContent=s;
+ $("resultLabel").textContent="AWAITING DATA";
+
  renderSports();
  renderMarkets();
  loadEvents();
@@ -174,6 +183,7 @@ function chooseSport(s){
 
 function renderMarkets(){
  const markets=CONFIG[selected].markets;
+
  $("market").innerHTML=Object.entries(markets).map(([key,label])=>
  `<option value="${key}">${label}</option>`
  ).join("");
@@ -182,8 +192,15 @@ function renderMarkets(){
 async function getJSON(url){
  const r=await fetch(url);
  const data=await r.json();
- if(!r.ok)throw new Error(data.details?.message||data.error||"Request failed ("+r.status+")");
- if(!data.success)throw new Error(data.error||"Request unsuccessful");
+
+ if(!r.ok){
+  throw new Error(data.details?.message||data.error||"Request failed ("+r.status+")");
+ }
+
+ if(!data.success){
+  throw new Error(data.error||"Request unsuccessful");
+ }
+
  return data;
 }
 
@@ -191,20 +208,31 @@ async function loadEvents(){
  $("status").textContent="LOADING";
  $("event").innerHTML='<option value="">Loading games...</option>';
  message("Retrieving available "+selected+" games...");
+
  try{
   const result=await getJSON(`${API}?sport=${CONFIG[selected].key}&action=events`);
+
   events=result.data||[];
+
   const now=Date.now();
-  events=events.filter(e=>new Date(e.commence_time).getTime()>now-12*60*60*1000);
-  events.sort((a,b)=>new Date(a.commence_time)-new Date(b.commence_time));
+
+  events=events.filter(e=>
+   new Date(e.commence_time).getTime()>now-12*60*60*1000
+  );
+
+  events.sort((a,b)=>
+   new Date(a.commence_time)-new Date(b.commence_time)
+  );
 
   $("event").innerHTML=events.length
-   ?events.map(e=>`<option value="${e.id}">${e.away_team} @ ${e.home_team} · ${new Date(e.commence_time).toLocaleString([], {month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})}</option>`).join("")
+   ?events.map(e=>`<option value="${e.id}">${escapeHTML(e.away_team)} @ ${escapeHTML(e.home_team)} · ${new Date(e.commence_time).toLocaleString([], {month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})}</option>`).join("")
    :'<option value="">No games available</option>';
 
   $("status").textContent="CONNECTED";
   $("credits").textContent=result.creditsRemaining??"---";
+
   message(events.length+" games available. Select a matchup and market, then load player props.");
+
  }catch(e){
   $("status").textContent="ERROR";
   $("event").innerHTML='<option value="">Could not load games</option>';
@@ -213,139 +241,239 @@ async function loadEvents(){
 }
 
 function americanProbability(price){
- return price<0?(-price)/(-price+100):100/(price+100);
+ return price<0
+  ?(-price)/(-price+100)
+  :100/(price+100);
 }
 
 function formatOdds(price){
  return price>0?"+"+price:String(price);
 }
 
-function processProps(data){
+/* FIXED: Reads the nested backend response correctly. */
+function processProps(response){
+
+ const eventData=response.data||response;
+
+ if(!Array.isArray(eventData.bookmakers)){
+  throw new Error("The API responded, but no sportsbook data was found.");
+ }
+
  const players={};
  const books=new Set();
 
- (data.bookmakers||[]).forEach(book=>{
+ eventData.bookmakers.forEach(book=>{
   books.add(book.title);
+
   (book.markets||[]).forEach(market=>{
    (market.outcomes||[]).forEach(o=>{
+
     if(!o.description||o.point===undefined)return;
+
     const name=o.description;
     const key=name+"|"+o.point;
+
     if(!players[key]){
      players[key]={
-      name,point:o.point,
-      over:[],under:[],books:new Set()
+      name:name,
+      point:o.point,
+      over:[],
+      under:[],
+      books:new Set()
      };
     }
+
     const p=players[key];
-    const entry={book:book.title,price:o.price};
+
+    const entry={
+     book:book.title,
+     price:o.price
+    };
+
     if(o.name==="Over")p.over.push(entry);
     if(o.name==="Under")p.under.push(entry);
+
     p.books.add(book.title);
    });
   });
  });
 
  playerLines=Object.values(players).map(p=>{
-  p.over.sort((a,b)=>americanProbability(a.price)-americanProbability(b.price));
-  p.under.sort((a,b)=>americanProbability(a.price)-americanProbability(b.price));
-  return {...p,bestOver:p.over[p.over.length-1],bestUnder:p.under[p.under.length-1]};
+
+  /* Lowest implied probability gives the better payout. */
+  p.over.sort((a,b)=>
+   americanProbability(a.price)-americanProbability(b.price)
+  );
+
+  p.under.sort((a,b)=>
+   americanProbability(a.price)-americanProbability(b.price)
+  );
+
+  return {
+   ...p,
+   bestOver:p.over[0],
+   bestUnder:p.under[0]
+  };
  });
 
  $("books").textContent=books.size;
  $("total").textContent=playerLines.length;
- $("credits").textContent=data.creditsRemaining??"---";
- $("resultLabel").textContent=CONFIG[selected].markets[$("market").value].toUpperCase();
+ $("credits").textContent=response.creditsRemaining??"---";
+
+ $("resultLabel").textContent=
+  CONFIG[selected].markets[$("market").value].toUpperCase();
+
  renderPicks();
 }
 
 function renderPicks(){
+
  const q=$("search").value.trim().toLowerCase();
  const sort=$("sort").value;
- let rows=playerLines.filter(p=>p.name.toLowerCase().includes(q));
 
- if(sort==="player")rows.sort((a,b)=>a.name.localeCompare(b.name));
- if(sort==="line")rows.sort((a,b)=>b.point-a.point);
+ let rows=playerLines.filter(p=>
+  p.name.toLowerCase().includes(q)
+ );
+
+ if(sort==="player"){
+  rows.sort((a,b)=>a.name.localeCompare(b.name));
+ }
+
+ if(sort==="line"){
+  rows.sort((a,b)=>b.point-a.point);
+ }
 
  if(!rows.length){
-  $("picks").innerHTML='<div class="card" style="grid-column:1/-1;text-align:center;color:#aaa">No player lines found. Try another search or market.</div>';
+  $("picks").innerHTML=
+   '<div class="card" style="grid-column:1/-1;text-align:center;color:#aaa">No player lines found. Try another search or market.</div>';
   return;
  }
 
  $("picks").innerHTML=rows.map(p=>{
+
   const over=p.bestOver;
   const under=p.bestUnder;
+
   return `<article class="pick">
    <div class="pick-top">
     <span style="color:var(--gold);font-size:11px;font-weight:bold">LIVE MARKET</span>
     <span style="color:var(--green);font-size:10px">${p.books.size} BOOKS</span>
    </div>
+
    <div class="player">${escapeHTML(p.name)}</div>
+
    <div class="match">${escapeHTML($("event").selectedOptions[0]?.textContent||"")}</div>
+
    <div class="prop">${p.point} ${escapeHTML(CONFIG[selected].markets[$("market").value])}</div>
+
    <div class="price-grid">
-    <div class="price"><small>BEST OVER</small><strong>${over?formatOdds(over.price):"Unavailable"}</strong><small>${over?escapeHTML(over.book):"No quote"}</small></div>
-    <div class="price"><small>BEST UNDER</small><strong>${under?formatOdds(under.price):"Unavailable"}</strong><small>${under?escapeHTML(under.book):"No quote"}</small></div>
+    <div class="price">
+     <small>BEST OVER</small>
+     <strong>${over?formatOdds(over.price):"Unavailable"}</strong>
+     <small>${over?escapeHTML(over.book):"No quote"}</small>
+    </div>
+
+    <div class="price">
+     <small>BEST UNDER</small>
+     <strong>${under?formatOdds(under.price):"Unavailable"}</strong>
+     <small>${under?escapeHTML(under.book):"No quote"}</small>
+    </div>
    </div>
+
    <div class="book">Comparing ${p.books.size} sportsbooks · Same player and line</div>
   </article>`;
+
  }).join("");
 }
 
 function escapeHTML(value){
  return String(value).replace(/[&<>"']/g,c=>({
-  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  "&":"&amp;",
+  "<":"&lt;",
+  ">":"&gt;",
+  '"':"&quot;",
+  "'":"&#39;"
  }[c]));
 }
 
 async function loadProps(){
+
  if(busy)return;
+
  const eventId=$("event").value;
  const market=$("market").value;
- if(!eventId){message("Select a game first.");return;}
+
+ if(!eventId){
+  message("Select a game first.");
+  return;
+ }
 
  busy=true;
+
  $("load").disabled=true;
  $("load").textContent="LOADING...";
  $("picks").innerHTML="";
+
  message("Requesting live sportsbook lines. This request uses API credits.");
 
  try{
+
   const params=new URLSearchParams({
    sport:CONFIG[selected].key,
    action:"props",
-   eventId,
+   eventId:eventId,
    markets:market
   });
-  const data=await getJSON(`${API}?${params}`);
-  processProps(data);
+
+  const response=await getJSON(`${API}?${params}`);
+
+  processProps(response);
+
   message(playerLines.length+" player lines loaded successfully.");
+
   $("status").textContent="LIVE DATA";
+
  }catch(e){
+
   message("Player props error: "+e.message);
+
   $("status").textContent="ERROR";
-  $("picks").innerHTML='<div class="card" style="grid-column:1/-1;color:#ff7185">Could not load player props. Check the selected game and API response.</div>';
+
+  $("picks").innerHTML=
+   '<div class="card" style="grid-column:1/-1;color:#ff7185">Could not load player props. '+escapeHTML(e.message)+'</div>';
+
  }finally{
+
   busy=false;
   $("load").disabled=false;
   $("load").textContent="LOAD PLAYER PROPS";
+
  }
 }
 
 $("load").addEventListener("click",loadProps);
+
 $("search").addEventListener("input",renderPicks);
+
 $("sort").addEventListener("change",renderPicks);
+
 $("event").addEventListener("change",()=>{
+
  playerLines=[];
+
  $("picks").innerHTML="";
  $("total").textContent="0";
  $("books").textContent="0";
+ $("resultLabel").textContent="AWAITING DATA";
+
  message("Matchup selected. Load player props when ready.");
+
 });
 
 renderSports();
 renderMarkets();
 loadEvents();
+
 </script>
 </body>
 </html>
